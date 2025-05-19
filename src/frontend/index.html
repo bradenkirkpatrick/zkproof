@@ -214,6 +214,9 @@
         </div>
     </div>
     
+    <!-- Import the Aleo Proof System -->
+    <script src="js/aleoProof.js"></script>
+    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const accessForm = document.getElementById('accessForm');
@@ -223,8 +226,11 @@
             const proofDetails = document.getElementById('proofDetails');
             const loading = document.querySelector('.loading');
             
-            // Simulate generating a proof and verifying access
-            accessForm.addEventListener('submit', function(e) {
+            // Initialize the Aleo Proof System
+            const aleoProof = new AleoProofSystem();
+            
+            // Handle form submission
+            accessForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
                 const role = parseInt(roleSelect.value);
@@ -237,56 +243,48 @@
                 // Show loading spinner
                 loading.style.display = 'block';
                 
-                // Simulate proof generation delay
-                setTimeout(() => {
-                    loading.style.display = 'none';
+                try {
+                    // Generate a zero-knowledge proof using our Aleo system
+                    const proof = await aleoProof.generateAccessProof(role, accessType);
                     
-                    // Check if role matches the access type
-                    const hasAccess = role === accessType;
+                    // Verify the proof
+                    const verificationResult = await aleoProof.verifyAccessProof(proof, accessType);
+                    
+                    // Generate a formatted report
+                    const report = await aleoProof.formatVerificationReport(
+                        proof, verificationResult, role, accessType
+                    );
+                    
+                    // Hide loading spinner
+                    loading.style.display = 'none';
                     
                     // Display result
                     resultBox.style.display = 'block';
                     
-                    if (hasAccess) {
+                    if (verificationResult.success) {
                         resultBox.textContent = 'Access Granted ✓';
                         resultBox.className = 'result success';
-                        
-                        // Simulate a proof verification output
-                        proofDetails.textContent = generateFakeProof(role, accessType, true);
                     } else {
                         resultBox.textContent = 'Access Denied ✗';
                         resultBox.className = 'result error';
-                        
-                        // Simulate a proof verification output
-                        proofDetails.textContent = generateFakeProof(role, accessType, false);
                     }
                     
+                    // Display the proof details
+                    proofDetails.textContent = report;
                     proofDetails.style.display = 'block';
-                }, 2000);
+                    
+                } catch (error) {
+                    console.error('Error generating or verifying proof:', error);
+                    
+                    // Hide loading spinner
+                    loading.style.display = 'none';
+                    
+                    // Display error result
+                    resultBox.style.display = 'block';
+                    resultBox.textContent = 'Error: Could not generate proof';
+                    resultBox.className = 'result error';
+                }
             });
-            
-            // Generate a simulated proof verification output
-            function generateFakeProof(role, accessType, verified) {
-                const timestamp = new Date().toISOString();
-                const randomHash = Array(64).fill(0).map(() => 
-                    Math.floor(Math.random() * 16).toString(16)).join('');
-                
-                return `
-================================
-zkAuth Proof Verification
-================================
-Timestamp: ${timestamp}
-Request ID: ${randomHash.substring(0, 16)}
-
-Generating proof...
-Proof type: Groth16
-Circuit constraints: 1024
-Public inputs: accessType=${accessType}
-
-Verification result: ${verified ? 'SUCCESS' : 'FAILED'}
-${verified ? '✓ Zero-knowledge proof valid' : '✗ Role does not have required access rights'}
-================================`;
-            }
         });
     </script>
 </body>
