@@ -4,215 +4,235 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>zkAuth - Private Membership Access</title>
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- GSAP for animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <!-- Custom Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            200: '#c7d2fe',
+                            300: '#a5b4fc',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                        },
+                    },
+                    animation: {
+                        'bounce-slow': 'bounce 3s infinite',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'spin-slow': 'spin 3s linear infinite',
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        :root {
-            --primary-color: #6366f1;
-            --primary-hover: #4f46e5;
-            --surface: #ffffff;
-            --background: #f3f4f6;
-            --text: #1f2937;
-            --success: #10b981;
-            --error: #ef4444;
-            --border: #e5e7eb;
-        }
-        
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: var(--background);
-            color: var(--text);
-            line-height: 1.6;
-            padding: 2rem;
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .container {
-            max-width: 800px;
-            width: 100%;
-            background-color: var(--surface);
-            border-radius: 1rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-            margin: 2rem auto;
-        }
-        
-        header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        
-        h1 {
-            color: var(--text);
-            margin-bottom: 0.5rem;
-        }
-        
-        .tagline {
-            color: #6b7280;
-            font-size: 1.125rem;
-        }
-        
-        .card {
-            border: 1px solid var(--border);
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-        
-        label {
-            font-weight: 500;
-            display: block;
-            margin-bottom: 0.5rem;
-        }
-        
-        select, button {
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            font-size: 1rem;
-        }
-        
-        select {
-            border: 1px solid var(--border);
-            background-color: var(--surface);
-        }
-        
-        button {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        
-        button:hover {
-            background-color: var(--primary-hover);
-        }
-        
-        .result {
-            margin-top: 2rem;
-            text-align: center;
-            padding: 1.5rem;
-            border-radius: 0.75rem;
-            font-weight: 600;
-            font-size: 1.25rem;
-            display: none;
-        }
-        
-        .success {
-            background-color: rgba(16, 185, 129, 0.1);
-            color: var(--success);
-            border: 1px solid rgba(16, 185, 129, 0.2);
-        }
-        
-        .error {
-            background-color: rgba(239, 68, 68, 0.1);
-            color: var(--error);
-            border: 1px solid rgba(239, 68, 68, 0.2);
-        }
-        
-        .proof-details {
-            margin-top: 1.5rem;
-            font-family: monospace;
-            font-size: 0.875rem;
-            background: #f9fafb;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            overflow-x: auto;
-            display: none;
-        }
-        
-        .info-box {
-            background-color: rgba(99, 102, 241, 0.1);
-            border: 1px solid rgba(99, 102, 241, 0.2);
-            padding: 1rem;
-            border-radius: 0.5rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .loading {
-            display: none;
-            text-align: center;
-            margin: 1rem 0;
-        }
-        
-        .spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border-left-color: var(--primary-color);
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
-        
-        @keyframes spin {
+        @keyframes floatingKeys {
             0% {
-                transform: rotate(0deg);
+                transform: translateY(0px);
+                opacity: 0;
+            }
+            20% {
+                opacity: 1;
+            }
+            80% {
+                opacity: 1;
             }
             100% {
-                transform: rotate(360deg);
+                transform: translateY(-100px);
+                opacity: 0;
             }
+        }
+
+        .floating-key {
+            position: absolute;
+            font-size: 1.5rem;
+            animation: floatingKeys 3s ease-out;
+            animation-fill-mode: forwards;
+        }
+        
+        @keyframes scaleIn {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .scale-in {
+            animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        
+        .vault-door {
+            transition: transform 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        .vault-door.open {
+            transform: perspective(1200px) rotateY(-105deg);
+        }
+        
+        pre {
+            white-space: pre-wrap;
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <header>
-            <h1>zkAuth</h1>
-            <p class="tagline">Private Membership Access using Zero-Knowledge Proofs</p>
+<body class="bg-gray-50 text-gray-900 min-h-screen">
+    <div class="max-w-4xl mx-auto px-4 py-8">
+        <header class="text-center mb-8">
+            <div class="inline-block mb-2">
+                <div class="flex items-center justify-center space-x-2">
+                    <div class="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-600">zkAuth</div>
+                    <div class="bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded-md font-semibold">v1.0</div>
+                </div>
+                <p class="text-gray-500 mt-2">Private Membership Access using Zero-Knowledge Proofs</p>
+            </div>
         </header>
         
-        <div class="info-box">
-            <p>
-                <strong>zkAuth</strong> lets you prove your access rights without revealing your identity.
-                Select your role below to generate a zero-knowledge proof and verify your access.
-            </p>
-        </div>
-        
-        <div class="card">
-            <form id="accessForm">
-                <div>
-                    <label for="role">Select Role:</label>
-                    <select id="role" required>
-                        <option value="" disabled selected>Choose your role</option>
-                        <option value="1">Student</option>
-                        <option value="2">Employee</option>
-                        <option value="3">VIP Member</option>
-                    </select>
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8 relative">
+            <div class="absolute top-0 right-0 mt-4 mr-4">
+                <div class="flex items-center space-x-1 text-xs bg-indigo-50 text-indigo-700 py-1 px-2 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Secured with Aleo zk-proofs</span>
                 </div>
-                
-                <div>
-                    <label for="accessType">Access Type:</label>
-                    <select id="accessType" required>
-                        <option value="" disabled selected>What are you accessing?</option>
-                        <option value="1">Student Portal</option>
-                        <option value="2">Employee Dashboard</option>
-                        <option value="3">VIP Content</option>
-                    </select>
-                </div>
-                
-                <button type="submit" id="generateProofBtn">Generate Proof & Verify Access</button>
-            </form>
-            
-            <div class="loading">
-                <div class="spinner"></div>
-                <p>Generating zero-knowledge proof...</p>
             </div>
             
-            <div class="result" id="resultBox"></div>
-            
-            <div class="proof-details" id="proofDetails"></div>
+            <div class="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4 text-white">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-white bg-opacity-20 p-2 rounded-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-medium text-lg">Zero-Knowledge Authentication</h3>
+                        <p class="text-indigo-100 text-sm">Prove membership without revealing identity</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6">
+                <form id="accessForm" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label for="role" class="block text-sm font-medium text-gray-700">Select Your Role</label>
+                            <select id="role" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                <option value="" disabled selected>Choose your role</option>
+                                <option value="1">Student</option>
+                                <option value="2">Employee</option>
+                                <option value="3">VIP Member</option>
+                            </select>
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <label for="accessType" class="block text-sm font-medium text-gray-700">Access Type</label>
+                            <select id="accessType" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                <option value="" disabled selected>What are you accessing?</option>
+                                <option value="1">Student Portal</option>
+                                <option value="2">Employee Dashboard</option>
+                                <option value="3">VIP Content</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <button type="submit" id="generateProofBtn" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 flex items-center justify-center space-x-2 group">
+                            <span>Generate Proof & Verify Access</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="loading hidden mt-8 text-center">
+                    <div class="inline-flex items-center justify-center space-x-2 bg-indigo-50 text-indigo-700 px-4 py-2 rounded-full">
+                        <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span class="font-medium">Generating zero-knowledge proof...</span>
+                    </div>
+                    
+                    <div class="mt-4 text-sm text-gray-500">
+                        This may take a few seconds
+                    </div>
+                    
+                    <div id="progressSteps" class="mt-8 max-w-md mx-auto">
+                        <div class="relative">
+                            <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-indigo-100">
+                                <div id="progressBar" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-indigo-600 transition-all duration-1000" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div id="stepText" class="text-center text-sm text-indigo-700 font-medium">Initializing proof generation...</div>
+                    </div>
+                </div>
+                
+                <!-- Access Result Section -->
+                <div class="results-container hidden mt-8">
+                    <div class="flex justify-center">
+                        <div class="h-64 w-64 relative">
+                            <!-- Vault Door Animation -->
+                            <div id="accessAnimation" class="hidden">
+                                <!-- Vault Door -->
+                                <div class="vault-container relative w-64 h-64">
+                                    <div class="vault-base border-8 border-gray-700 rounded-lg bg-gray-300 w-full h-full flex items-center justify-center">
+                                        <div id="vaultContent" class="text-center p-6 opacity-0 transition-opacity duration-500">
+                                            <div id="accessGrantedContent" class="hidden">
+                                                <svg class="w-16 h-16 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                </svg>
+                                                <h3 class="text-xl font-bold mt-2 text-green-700">Access Granted</h3>
+                                            </div>
+                                            
+                                            <div id="accessDeniedContent" class="hidden">
+                                                <svg class="w-16 h-16 text-red-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                </svg>
+                                                <h3 class="text-xl font-bold mt-2 text-red-700">Access Denied</h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="vaultDoor" class="vault-door absolute inset-0 border-8 border-gray-700 rounded-lg bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center origin-left">
+                                        <div class="vault-wheel w-24 h-24 rounded-full border-8 border-gray-600 bg-gray-300 flex items-center justify-center transform">
+                                            <div class="w-16 h-4 bg-gray-600 rounded-full transform"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="resultBox" class="hidden mt-8 text-center py-4 px-6 rounded-lg font-bold text-lg"></div>
+                    
+                    <div id="proofDetails" class="hidden mt-6 bg-gray-50 p-4 rounded-lg overflow-x-auto">
+                        <div class="text-xs font-mono"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-4 text-center text-gray-500 text-sm">
+            <p>zkAuth uses Aleo's zero-knowledge proof technology to verify credentials privately.</p>
         </div>
     </div>
+    
+    <!-- Import the Aleo Proof System -->
+    <script src="js/aleoProof.js"></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -222,9 +242,140 @@
             const resultBox = document.getElementById('resultBox');
             const proofDetails = document.getElementById('proofDetails');
             const loading = document.querySelector('.loading');
+            const resultsContainer = document.querySelector('.results-container');
+            const accessAnimation = document.getElementById('accessAnimation');
+            const vaultDoor = document.getElementById('vaultDoor');
+            const vaultContent = document.getElementById('vaultContent');
+            const accessGrantedContent = document.getElementById('accessGrantedContent');
+            const accessDeniedContent = document.getElementById('accessDeniedContent');
+            const progressBar = document.getElementById('progressBar');
+            const stepText = document.getElementById('stepText');
             
-            // Simulate generating a proof and verifying access
-            accessForm.addEventListener('submit', function(e) {
+            // Initialize the Aleo Proof System
+            const aleoProof = new AleoProofSystem();
+            
+            // Progress bar animation steps
+            const progressSteps = [
+                { width: "20%", text: "Generating key pair..." },
+                { width: "40%", text: "Creating commitment to role..." },
+                { width: "60%", text: "Constructing zero-knowledge proof..." },
+                { width: "80%", text: "Verifying access rights..." },
+                { width: "100%", text: "Finalizing verification..." }
+            ];
+            
+            // Simulate the progress steps
+            function animateProgress() {
+                return new Promise((resolve) => {
+                    let step = 0;
+                    const interval = setInterval(() => {
+                        if (step >= progressSteps.length) {
+                            clearInterval(interval);
+                            setTimeout(resolve, 500); // slight pause at 100%
+                            return;
+                        }
+                        
+                        progressBar.style.width = progressSteps[step].width;
+                        stepText.textContent = progressSteps[step].text;
+                        step++;
+                    }, 600);
+                });
+            }
+            
+            // Create floating key animation
+            function createFloatingKeys() {
+                const container = document.querySelector('.loading');
+                const characters = ['🔑', '🔐', '0', '1'];
+                
+                for (let i = 0; i < 8; i++) {
+                    setTimeout(() => {
+                        const key = document.createElement('div');
+                        key.classList.add('floating-key');
+                        key.textContent = characters[Math.floor(Math.random() * characters.length)];
+                        key.style.left = `${Math.random() * 80 + 10}%`;
+                        key.style.opacity = '0';
+                        container.appendChild(key);
+                        
+                        // Remove element after animation completes
+                        setTimeout(() => {
+                            key.remove();
+                        }, 3000);
+                    }, i * 400);
+                }
+            }
+            
+            // Animate vault opening or staying closed
+            function animateVault(isGranted) {
+                return new Promise((resolve) => {
+                    // Show the animation container
+                    accessAnimation.classList.remove('hidden');
+                    accessAnimation.classList.add('scale-in');
+                    
+                    setTimeout(() => {
+                        if (isGranted) {
+                            // Open the vault door
+                            vaultDoor.classList.add('open');
+                            
+                            setTimeout(() => {
+                                // Show success content
+                                vaultContent.style.opacity = '1';
+                                accessGrantedContent.classList.remove('hidden');
+                                
+                                // Create sparkle effect
+                                createSparkles();
+                                
+                                setTimeout(resolve, 500);
+                            }, 1000);
+                        } else {
+                            // Shake the vault door to indicate access denied
+                            gsap.to(vaultDoor, {
+                                x: 10, 
+                                duration: 0.1, 
+                                repeat: 5, 
+                                yoyo: true,
+                                onComplete: () => {
+                                    // Show denied content
+                                    vaultContent.style.opacity = '1';
+                                    accessDeniedContent.classList.remove('hidden');
+                                    setTimeout(resolve, 500);
+                                }
+                            });
+                        }
+                    }, 500);
+                });
+            }
+            
+            // Create sparkle effect for granted access
+            function createSparkles() {
+                const container = document.querySelector('.vault-container');
+                
+                for (let i = 0; i < 20; i++) {
+                    setTimeout(() => {
+                        const sparkle = document.createElement('div');
+                        sparkle.style.position = 'absolute';
+                        sparkle.style.width = '8px';
+                        sparkle.style.height = '8px';
+                        sparkle.style.borderRadius = '50%';
+                        sparkle.style.backgroundColor = i % 2 ? '#4f46e5' : '#ffd700';
+                        sparkle.style.left = `${Math.random() * 100}%`;
+                        sparkle.style.top = `${Math.random() * 100}%`;
+                        sparkle.style.opacity = '0';
+                        container.appendChild(sparkle);
+                        
+                        // Animate sparkle
+                        gsap.to(sparkle, {
+                            scale: 0,
+                            opacity: 0.8,
+                            duration: 0.3,
+                            yoyo: true,
+                            repeat: 1,
+                            onComplete: () => sparkle.remove()
+                        });
+                    }, i * 100);
+                }
+            }
+            
+            // Handle form submission
+            accessForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
                 const role = parseInt(roleSelect.value);
@@ -233,60 +384,72 @@
                 // Hide previous results
                 resultBox.style.display = 'none';
                 proofDetails.style.display = 'none';
+                resultsContainer.classList.add('hidden');
+                accessAnimation.classList.add('hidden');
+                
+                // Reset animation elements
+                vaultDoor.classList.remove('open');
+                vaultContent.style.opacity = '0';
+                accessGrantedContent.classList.add('hidden');
+                accessDeniedContent.classList.add('hidden');
                 
                 // Show loading spinner
-                loading.style.display = 'block';
+                loading.classList.remove('hidden');
                 
-                // Simulate proof generation delay
-                setTimeout(() => {
-                    loading.style.display = 'none';
+                // Start floating keys animation
+                createFloatingKeys();
+                
+                try {
+                    // Start progress animation
+                    await animateProgress();
                     
-                    // Check if role matches the access type
-                    const hasAccess = role === accessType;
+                    // Generate a zero-knowledge proof using our Aleo system
+                    const proof = await aleoProof.generateAccessProof(role, accessType);
+                    
+                    // Verify the proof
+                    const verificationResult = await aleoProof.verifyAccessProof(proof, accessType);
+                    
+                    // Generate a formatted report
+                    const report = await aleoProof.formatVerificationReport(
+                        proof, verificationResult, role, accessType
+                    );
+                    
+                    // Hide loading spinner
+                    loading.classList.add('hidden');
+                    
+                    // Show results container
+                    resultsContainer.classList.remove('hidden');
+                    
+                    // Animate vault based on result
+                    await animateVault(verificationResult.success);
                     
                     // Display result
                     resultBox.style.display = 'block';
+                    resultBox.innerHTML = verificationResult.success ? 
+                        '<span class="text-green-600">Access Granted ✓</span>' : 
+                        '<span class="text-red-600">Access Denied ✗</span>';
                     
-                    if (hasAccess) {
-                        resultBox.textContent = 'Access Granted ✓';
-                        resultBox.className = 'result success';
-                        
-                        // Simulate a proof verification output
-                        proofDetails.textContent = generateFakeProof(role, accessType, true);
-                    } else {
-                        resultBox.textContent = 'Access Denied ✗';
-                        resultBox.className = 'result error';
-                        
-                        // Simulate a proof verification output
-                        proofDetails.textContent = generateFakeProof(role, accessType, false);
-                    }
-                    
+                    // Display the proof details
                     proofDetails.style.display = 'block';
-                }, 2000);
+                    proofDetails.querySelector('.text-xs').textContent = report;
+                    
+                } catch (error) {
+                    console.error('Error generating or verifying proof:', error);
+                    
+                    // Hide loading spinner
+                    loading.classList.add('hidden');
+                    
+                    // Show results container
+                    resultsContainer.classList.remove('hidden');
+                    
+                    // Animate vault (denied for error)
+                    await animateVault(false);
+                    
+                    // Display error result
+                    resultBox.style.display = 'block';
+                    resultBox.innerHTML = '<span class="text-red-600">Error: Could not generate proof</span>';
+                }
             });
-            
-            // Generate a simulated proof verification output
-            function generateFakeProof(role, accessType, verified) {
-                const timestamp = new Date().toISOString();
-                const randomHash = Array(64).fill(0).map(() => 
-                    Math.floor(Math.random() * 16).toString(16)).join('');
-                
-                return `
-================================
-zkAuth Proof Verification
-================================
-Timestamp: ${timestamp}
-Request ID: ${randomHash.substring(0, 16)}
-
-Generating proof...
-Proof type: Groth16
-Circuit constraints: 1024
-Public inputs: accessType=${accessType}
-
-Verification result: ${verified ? 'SUCCESS' : 'FAILED'}
-${verified ? '✓ Zero-knowledge proof valid' : '✗ Role does not have required access rights'}
-================================`;
-            }
         });
     </script>
 </body>
