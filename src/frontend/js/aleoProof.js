@@ -123,6 +123,10 @@ class AleoProofSystem {
                 timestamp: timestamp
             },
             
+            // Store the role in the proof (in a real ZK system this would be hidden)
+            // This is just for our simulation
+            _userRole: role,
+            
             // Metadata for the proof
             metadata: {
                 checksum: await this.hash(`zkAuth_${roleCommitment}_${accessType}_${timestamp}`),
@@ -150,9 +154,8 @@ class AleoProofSystem {
         
         // Simulate the verification process
         // In a real implementation, this would use cryptographic verification
-        // Here we're just checking if the proof is well-formed and the access type matches
         
-        const requiredFields = ['a', 'b', 'c', 'publicInputs', 'metadata'];
+        const requiredFields = ['a', 'b', 'c', 'publicInputs', 'metadata', '_userRole'];
         const hasAllFields = requiredFields.every(field => proof && proof[field]);
         
         if (!hasAllFields) {
@@ -163,17 +166,28 @@ class AleoProofSystem {
             };
         }
         
-        // Check if the proof's access type matches the required access type
-        const accessMatches = proof.publicInputs.accessType === accessType;
-        
         // Check if the proof is still valid (not expired)
         const proofValid = proof.metadata.validUntil > Date.now();
+        if (!proofValid) {
+            return {
+                success: false,
+                message: "Proof expired",
+                verificationTime: new Date().toISOString(),
+                programId: proof.metadata.program,
+                prover: proof.metadata.prover
+            };
+        }
+        
+        // In a real ZK system, the proof would cryptographically verify that the user's role
+        // matches the required access type without revealing the actual role.
+        // For our simulation, we'll check if the user's role matches the required access type directly.
+        const roleMatches = proof._userRole === accessType;
         
         return {
-            success: accessMatches && proofValid,
-            message: accessMatches ? 
-                     (proofValid ? "Access granted" : "Proof expired") : 
-                     "Access denied - role does not match requirements",
+            success: roleMatches,
+            message: roleMatches ? 
+                     "Access granted - role matches required access type" : 
+                     "Access denied - role does not match required access type",
             verificationId: await this.hash(`verify_${JSON.stringify(proof.publicInputs)}_${Date.now()}`),
             verificationTime: new Date().toISOString(),
             programId: proof.metadata.program,
