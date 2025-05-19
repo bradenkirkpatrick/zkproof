@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>zkAuth - Private Membership Access</title>
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --primary-hover: #4f46e5;
+            --surface: #ffffff;
+            --background: #f3f4f6;
+            --text: #1f2937;
+            --success: #10b981;
+            --error: #ef4444;
+            --border: #e5e7eb;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 2rem;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background-color: var(--surface);
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin: 2rem auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        h1 {
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+        
+        .tagline {
+            color: #6b7280;
+            font-size: 1.125rem;
+        }
+        
+        .card {
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        label {
+            font-weight: 500;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        
+        select, button {
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+        
+        select {
+            border: 1px solid var(--border);
+            background-color: var(--surface);
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+        
+        .result {
+            margin-top: 2rem;
+            text-align: center;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            font-size: 1.25rem;
+            display: none;
+        }
+        
+        .success {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        
+        .error {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+        
+        .proof-details {
+            margin-top: 1.5rem;
+            font-family: monospace;
+            font-size: 0.875rem;
+            background: #f9fafb;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            display: none;
+        }
+        
+        .info-box {
+            background-color: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 1rem 0;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: var(--primary-color);
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>zkAuth</h1>
+            <p class="tagline">Private Membership Access using Zero-Knowledge Proofs</p>
+        </header>
+        
+        <div class="info-box">
+            <p>
+                <strong>zkAuth</strong> lets you prove your access rights without revealing your identity.
+                Select your role below to generate a zero-knowledge proof and verify your access.
+            </p>
+        </div>
+        
+        <div class="card">
+            <form id="accessForm">
+                <div>
+                    <label for="role">Select Role:</label>
+                    <select id="role" required>
+                        <option value="" disabled selected>Choose your role</option>
+                        <option value="1">Student</option>
+                        <option value="2">Employee</option>
+                        <option value="3">VIP Member</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="accessType">Access Type:</label>
+                    <select id="accessType" required>
+                        <option value="" disabled selected>What are you accessing?</option>
+                        <option value="1">Student Portal</option>
+                        <option value="2">Employee Dashboard</option>
+                        <option value="3">VIP Content</option>
+                    </select>
+                </div>
+                
+                <button type="submit" id="generateProofBtn">Generate Proof & Verify Access</button>
+            </form>
+            
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Generating zero-knowledge proof...</p>
+            </div>
+            
+            <div class="result" id="resultBox"></div>
+            
+            <div class="proof-details" id="proofDetails"></div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const accessForm = document.getElementById('accessForm');
+            const roleSelect = document.getElementById('role');
+            const accessTypeSelect = document.getElementById('accessType');
+            const resultBox = document.getElementById('resultBox');
+            const proofDetails = document.getElementById('proofDetails');
+            const loading = document.querySelector('.loading');
+            
+            // Simulate generating a proof and verifying access
+            accessForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const role = parseInt(roleSelect.value);
+                const accessType = parseInt(accessTypeSelect.value);
+                
+                // Hide previous results
+                resultBox.style.display = 'none';
+                proofDetails.style.display = 'none';
+                
+                // Show loading spinner
+                loading.style.display = 'block';
+                
+                // Simulate proof generation delay
+                setTimeout(() => {
+                    loading.style.display = 'none';
+                    
+                    // Check if role matches the access type
+                    const hasAccess = role === accessType;
+                    
+                    // Display result
+                    resultBox.style.display = 'block';
+                    
+                    if (hasAccess) {
+                        resultBox.textContent = 'Access Granted ✓';
+                        resultBox.className = 'result success';
+                        
+                        // Simulate a proof verification output
+                        proofDetails.textContent = generateFakeProof(role, accessType, true);
+                    } else {
+                        resultBox.textContent = 'Access Denied ✗';
+                        resultBox.className = 'result error';
+                        
+                        // Simulate a proof verification output
+                        proofDetails.textContent = generateFakeProof(role, accessType, false);
+                    }
+                    
+                    proofDetails.style.display = 'block';
+                }, 2000);
+            });
+            
+            // Generate a simulated proof verification output
+            function generateFakeProof(role, accessType, verified) {
+                const timestamp = new Date().toISOString();
+                const randomHash = Array(64).fill(0).map(() => 
+                    Math.floor(Math.random() * 16).toString(16)).join('');
+                
+                return `
+================================
+zkAuth Proof Verification
+================================
+Timestamp: ${timestamp}
+Request ID: ${randomHash.substring(0, 16)}
+
+Generating proof...
+Proof type: Groth16
+Circuit constraints: 1024
+Public inputs: accessType=${accessType}
+
+Verification result: ${verified ? 'SUCCESS' : 'FAILED'}
+${verified ? '✓ Zero-knowledge proof valid' : '✗ Role does not have required access rights'}
+================================`;
+            }
+        });
+    </script>
+</body>
+</html>
